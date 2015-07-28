@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-const DefaultUrl = "api.logentries.com:20000"
+const DefaultUrl = "data.logentries.com:443"
 
 type Client struct {
 	conn  *tls.Conn
