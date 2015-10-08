@@ -25,6 +25,8 @@ func Follow(socket string) (<-chan []byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	req.Header.Add("Accept", "application/json")
+
 	resp, err := c.Do(req)
 	if err != nil {
 		return nil, err
