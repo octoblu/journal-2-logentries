@@ -11,6 +11,7 @@ type LogLine struct {
 	Timestamp string `json:"__REALTIME_TIMESTAMP"`
 	Unit string `json:"_SYSTEMD_UNIT"`
 	Message string `json:"MESSAGE"`
+	Hostname string `json:"_HOSTNAME"`
 }
 
 func (logLine *LogLine) FormatTimestamp() (string) {
@@ -23,6 +24,6 @@ func (logLine *LogLine) FormatTimestamp() (string) {
 }
 
 func (logLine *LogLine) FormatLine() (string) {
-	prettyOutput := fmt.Sprintf("%s %s %s", logLine.FormatTimestamp(), logLine.Unit, logLine.Message)
+	prettyOutput := fmt.Sprintf("%s %s %s %s", logLine.FormatTimestamp(), logLine.Hostname, logLine.Unit, logLine.Message)
 	return strings.Replace(prettyOutput, "\n", "\\n", -1)
 }
