@@ -31,9 +31,9 @@ func main() {
 	}
 	for {
 		select {
-		case data := <-logs:
-			if _, err := le.Write(data); err != nil {
-				log.Print(err.Error())
+		case logLine := <-logs:
+			if _, err := le.Write(logLine); err != nil {
+				log.Fatal(err.Error())
 			}
 		}
 	}

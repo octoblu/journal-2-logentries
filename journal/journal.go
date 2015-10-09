@@ -1,16 +1,16 @@
 package journal
 
 import (
-	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
+	"encoding/json"
+	"github.com/octoblu/journal-2-logentries/logline"
 )
 
 const DefaultSocket = "/run/journald.sock"
 
-func Follow(socket string) (<-chan []byte, error) {
+func Follow(socket string) (<-chan logline.LogLine, error) {
 	if socket == "" {
 		socket = DefaultSocket
 	}
@@ -34,14 +34,16 @@ func Follow(socket string) (<-chan []byte, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non 200 response: %d", resp.StatusCode)
 	}
-	logs := make(chan []byte)
-	scanner := bufio.NewScanner(resp.Body)
+	logs := make(chan logline.LogLine)
+	decoder := json.NewDecoder(resp.Body)
 	go func() {
-		for scanner.Scan() {
-			logs <- scanner.Bytes()
-		}
-		if err := scanner.Err(); err != nil {
-			log.Println(err.Error())
+		var logLine logline.LogLine
+		for decoder.More() {
+			if err := decoder.Decode(&logLine); err != nil {
+				// MESSAGE might be a byte array... WHAT DO I DO?!
+				logLine.Message = "ERROR:journal-2-logentries " + err.Error()
+			}
+			logs <- logLine
 		}
 	}()
 	return logs, nil

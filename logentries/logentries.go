@@ -4,7 +4,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"strings"
 	"fmt"
+	"github.com/octoblu/journal-2-logentries/logline"
 )
 
 const DefaultUrl = "api.logentries.com:20000"
@@ -29,8 +31,10 @@ func New(url, token string) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Write(b []byte) (int, error) {
-	s := fmt.Sprintf("%s %s\n", c.token, b)
+func (c *Client) Write(logLine logline.LogLine) (int, error) {
+	prettyOutput := fmt.Sprintf("%s %s %s", logLine.FormatTimestamp(), logLine.Unit, logLine.Message)
+	prettyOutput = strings.Replace(prettyOutput, "\n", "\\n", -1)
+	s := fmt.Sprintf("%s %s\n", c.token, prettyOutput)
 	return c.writeAndRetry([]byte(s))
 }
 
