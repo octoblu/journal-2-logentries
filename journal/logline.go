@@ -1,7 +1,9 @@
-package logline
+package journal
 
 import (
 	"time"
+	"fmt"
+	"strings"
 	"strconv"
 )
 
@@ -16,6 +18,11 @@ func (logLine *LogLine) FormatTimestamp() (string) {
 	if err != nil {
 		return "ERROR:time-unparsable"
 	}
-	// NanoTime is... correct? How does Go even modulus?
+	// NanoTime is... correct? How does Go even modulus?j
 	return time.Unix(timeInt64/1000000, timeInt64%1000000).Format(time.RFC3339Nano)
+}
+
+func (logLine *LogLine) FormatLine() (string) {
+	prettyOutput := fmt.Sprintf("%s %s %s", logLine.FormatTimestamp(), logLine.Unit, logLine.Message)
+	return strings.Replace(prettyOutput, "\n", "\\n", -1)
 }

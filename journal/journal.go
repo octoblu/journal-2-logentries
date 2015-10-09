@@ -5,12 +5,11 @@ import (
 	"net"
 	"net/http"
 	"encoding/json"
-	"github.com/octoblu/journal-2-logentries/logline"
 )
 
 const DefaultSocket = "/run/journald.sock"
 
-func Follow(socket string) (<-chan logline.LogLine, error) {
+func Follow(socket string) (<-chan []byte, error) {
 	if socket == "" {
 		socket = DefaultSocket
 	}
@@ -34,16 +33,16 @@ func Follow(socket string) (<-chan logline.LogLine, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non 200 response: %d", resp.StatusCode)
 	}
-	logs := make(chan logline.LogLine)
+	logs := make(chan []byte)
 	decoder := json.NewDecoder(resp.Body)
 	go func() {
-		var logLine logline.LogLine
+		var logLine LogLine
 		for decoder.More() {
 			if err := decoder.Decode(&logLine); err != nil {
 				// MESSAGE might be a byte array... WHAT DO I DO?!
 				logLine.Message = "ERROR:journal-2-logentries " + err.Error()
 			}
-			logs <- logLine
+			logs <- []byte(logLine.FormatLine())
 		}
 	}()
 	return logs, nil
