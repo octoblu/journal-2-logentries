@@ -33,7 +33,7 @@ func main() {
 		select {
 		case logLine := <-logs:
 			if _, err := le.Write(logLine); err != nil {
-				log.Fatal(err.Error())
+				log.Println(err.Error())
 			}
 		}
 	}

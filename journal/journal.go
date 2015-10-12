@@ -2,6 +2,7 @@ package journal
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"encoding/json"
@@ -36,12 +37,20 @@ func Follow(socket string) (<-chan []byte, error) {
 	logs := make(chan []byte)
 	decoder := json.NewDecoder(resp.Body)
 	go func() {
+		var obj interface{}
 		var logLine LogLine
 		for decoder.More() {
-			if err := decoder.Decode(&logLine); err != nil {
-				// MESSAGE might be a byte array... WHAT DO I DO?!
-				logLine.Message = "ERROR:journal-2-logentries " + err.Error()
+
+			if err := decoder.Decode(&obj); err != nil {
+				log.Println(err.Error())
+				logLine.SetError(err.Error())
 			}
+
+			if err := logLine.Parse(obj); err != nil {
+				log.Fatalf("ERROR: %v", err.Error())
+				logLine.SetError(err.Error())
+			}
+
 			logs <- []byte(logLine.FormatLine())
 		}
 	}()
