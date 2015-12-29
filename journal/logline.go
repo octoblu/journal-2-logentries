@@ -12,6 +12,7 @@ type LogLine struct {
 	Unit string `json:"_SYSTEMD_UNIT"`
 	Message string
 	Hostname string `json:"_HOSTNAME"`
+	PID string `json:"_PID"`
 }
 
 func (logLine *LogLine) FormatTimestamp() (string) {
@@ -19,12 +20,11 @@ func (logLine *LogLine) FormatTimestamp() (string) {
 	if err != nil {
 		return "ERROR:time-unparsable"
 	}
-	// NanoTime is... correct? How does Go even modulus?j
-	return time.Unix(timeInt64/1000000, timeInt64%1000000).Format(time.RFC3339Nano)
+	return time.Unix(timeInt64/1000000, (timeInt64%1000000)*1000).Format(time.RFC3339Nano)
 }
 
 func (logLine *LogLine) FormatLine() (string) {
-	prettyOutput := fmt.Sprintf("%s %s %s %s", logLine.FormatTimestamp(), logLine.Hostname, logLine.Unit, logLine.Message)
+	prettyOutput := fmt.Sprintf("%s %s %s [%s] %s", logLine.FormatTimestamp(), logLine.Hostname, logLine.Unit, logLine.PID, logLine.Message)
 	return strings.Replace(prettyOutput, "\n", "\\n", -1)
 }
 
@@ -40,6 +40,7 @@ func (logLine *LogLine) Parse(obj interface{}) error {
 	logLine.Timestamp = parseStringOrNil(objMap["__REALTIME_TIMESTAMP"])
 	logLine.Unit = parseStringOrNil(objMap["_SYSTEMD_UNIT"])
 	logLine.Hostname = parseStringOrNil(objMap["_HOSTNAME"])
+	logLine.PID = parseStringOrNil(objMap["_PID"])
 
 	return nil
 }
