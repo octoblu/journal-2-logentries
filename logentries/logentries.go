@@ -2,27 +2,20 @@ package logentries
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"errors"
 	"fmt"
 )
 
-const DefaultUrl = "api.logentries.com:20000"
+const DefaultUrl = "data.logentries.com:443"
 
 type Client struct {
 	conn  *tls.Conn
-	pool  *x509.CertPool
 	token string
 	url   string
 }
 
 func New(url, token string) (*Client, error) {
 	c := &Client{token: token, url: url}
-	pool := x509.NewCertPool()
-	if ok := pool.AppendCertsFromPEM(pemCerts); !ok {
-		return nil, errors.New("failed to parse certs")
-	}
-	c.pool = pool
 	if err := c.connect(); err != nil {
 		return nil, err
 	}
@@ -39,7 +32,7 @@ func (c *Client) connect() error {
 		c.conn.Close()
 		c.conn = nil
 	}
-	conn, err := tls.Dial("tcp", c.url, &tls.Config{RootCAs: c.pool})
+	conn, err := tls.Dial("tcp", "data.logentries.com:443", &tls.Config{})
 	if err != nil {
 		return err
 	}
