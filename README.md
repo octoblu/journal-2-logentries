@@ -10,7 +10,7 @@ sudo LOGENTRIES_TOKEN=<token> journal-2-logentries
 
 ```
 sudo docker run -d -e 'LOGENTRIES_TOKEN=<token>' -v /run/journald.sock:/run/journald.sock \
-quay.io/kelseyhightower/journal-2-logentries
+quay.io/octoblu/journal-2-logentries
 ```
 
 ## Configuration
@@ -18,7 +18,7 @@ quay.io/kelseyhightower/journal-2-logentries
 All configuration is done through env vars.
 
 * `LOGENTRIES_JOURNAL_SOCKET` - The systemd-journal-gatewayd socket. `/run/journald.sock`
-* `LOGENTRIES_URL` - The log entry url. `api.logentries.com:20000`
+* `LOGENTRIES_URL` - The log entry url. `data.logentries.com:433`
 * `LOGENTRIES_TOKEN` - The logentries.com TCP token -- See https://logentries.com/doc/input-token
 
 Note: Make sure that systemd-journal-gatewayd is actually listening on
@@ -34,8 +34,8 @@ GO_ENABLED=0 GOOS=linux go build -a -tags netgo -ldflags '-w' .
 ### Docker
 
 ```
-docker build -t quay.io/<username>/journal-2-logentries .
-docker push quay.io/<username>/journal-2-logentries
+docker build -t quay.io/octoblu/journal-2-logentries .
+docker push quay.io/octoblu/journal-2-logentries
 ```
 
 ## Fleet integration
